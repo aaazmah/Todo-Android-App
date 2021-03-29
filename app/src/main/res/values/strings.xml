@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Todos_HamzaSheikh</string>
-    <string name="launch">Launch! </string>
+    <string name="launch">New todo! </string>
     <string name="save">Save</string>
     <string name="upload_image">Upload Image</string>
     <string name="completed">Completed</string>
@@ -9,4 +9,6 @@
     <string name="title">Title</string>
     <string name="new_todo">New Todo</string>
     <string name="welcome">Welcome!</string>
+    <string name="todotitle1">TodoTitle1</string>
+    <string name="todocontent1">TodoContent1</string>
 </resources>

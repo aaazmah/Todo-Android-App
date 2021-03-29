@@ -1,35 +1,44 @@
 package edu.towson.cosc435.sheikh.todos
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Button
-import android.widget.Toast
-import java.lang.Exception
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import edu.towson.cosc435.sheikh.todos.interfaces.ITodoController
+import edu.towson.cosc435.sheikh.todos.model.Todo
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), ITodoController {
 
     // Initialize a variable that contains a button property
-    private lateinit var launchButton: Button
+    private lateinit var addTodoButton: Button
+    private lateinit var  recyclerView: RecyclerView
+    private lateinit var todosRepository: TodoRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         grabWidgets()
+        addTodoButton.setOnClickListener {launchActivity()}
 
-        launchButton.setOnClickListener(this)
+        recyclerView.adapter = todoAdapter(this)
 
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
     }
 
     // Separate function to hold all the widgets
     private fun grabWidgets(){
         // The launchButton variable now holds the launchactivity button from the layout
-        launchButton = findViewById(R.id.launchActivity)
+
+        addTodoButton = findViewById(R.id.addTodoBtn)
+        recyclerView = findViewById(R.id.recyclerView)
+        todosRepository = TodoRepository()
 
 
     }
@@ -44,11 +53,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data)
         when(requestCode){
             REQUEST_CODE -> {
-                when(resultCode){
+                when (resultCode) {
                     RESULT_OK -> {
                         val json = data?.getStringExtra(NewTodoActivity.INFO_KEY)
-                        if (json != null){
-                            Log.d(TAG, json)
+                        if (json != null) {
+                            val todo = Gson().fromJson<Todo>(json, Todo::class.java)
+                            todosRepository.addTodo(todo)
+                            recyclerView.adapter?.notifyDataSetChanged()
+                            recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
                         }
                     }
                 }
@@ -58,20 +70,34 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
 
 
+    override fun deleteTodo(idx: Int) {
+       todosRepository.deleteTodo(idx)
+    }
+
+    override fun editTodo(idx: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun markCompleted(idx: Int) {
+        val todo = todosRepository.getTodo( idx)
+        todosRepository
+    }
+
+    override fun getTodo(idx: Int): Todo {
+        return todosRepository.getTodo(idx)
+    }
+
+    override fun getTodos(): List<Todo> {
+        return todosRepository.getTodos()
+    }
+
+
+
     companion object {
         const val REQUEST_CODE = 1;
         const val TAG = "MainActivity"
     }
 
-    override fun onClick(view: View?) {
-        try {
-            when(view?.id){
-                R.id.launchActivity -> launchActivity()
-            }
-        }catch (e: Exception){
-            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
-        }
-    }
 
 
 }
